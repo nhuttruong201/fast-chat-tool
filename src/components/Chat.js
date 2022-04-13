@@ -9,7 +9,8 @@ import moment from "moment";
 
 import randomId from "../services/randomId";
 import randomAvatar from "../services/randomAvatar";
-
+import ShowInfo from "./ShowInfo";
+import ShowUserOnline from "./ShowUserOnline";
 import ChatMessage from "./ChatMessage";
 import ConversationArea from "./ConversationArea";
 import HeaderChat from "./HeaderChat";
@@ -202,7 +203,17 @@ const Chat = (props) => {
                         myInfo={{ joinedAt, displayName, avatar }}
                         users={users}
                     />
+                    <ShowUserOnline
+                        isMobile={true}
+                        myInfo={{ joinedAt, displayName, avatar }}
+                        users={users}
+                    />
 
+                    <ShowInfo
+                        currentAvatar={avatar}
+                        displayName={displayName}
+                        changeUserInfo={handleChangeUserInfo}
+                    />
                     <div className="chat-area">
                         <div className="chat-area-header">
                             <div className="chat-area-title">{roomId}</div>
