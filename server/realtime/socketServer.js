@@ -9,33 +9,7 @@ let initSocketServer = (server) => {
 
     io.on("connection", (socket) => {
         console.log("connection: ", socket.id);
-        // TODO Fast note
-        socket.on("join-room", (code) => {
-            let room = code;
-            console.log("Client note room: ", room);
-
-            socket.join(room);
-            io.to(room).emit("join-room-success", `Join [${room}] succeeded!`);
-        });
-
-        socket.on("update-note", async (data) => {
-            // console.log(data);
-            let { code, password, content } = data;
-            let room = code;
-
-            socket.to(room).emit("update-note-other-succeed", {
-                socketId: socket.id,
-                content: content,
-                updatedAt: moment(new Date()).format("DD/MM/YYYY hh:mm:ss A"),
-            });
-
-            socket.emit(
-                "update-note-caller-succeed",
-                moment(new Date()).format("DD/MM/YYYY hh:mm:ss A")
-            );
-        });
-
-        // TODO Fast chat
+        // TODO chat
         socket.on("disconnect", (reason) => {
             console.log("disconnect: ", reason);
         });
@@ -147,6 +121,35 @@ let initSocketServer = (server) => {
             });
 
             socket.emit("get-all-users", users);
+        });
+
+        // todo video call
+
+        socket.on("connect-video-call", () => {
+            socket.emit("me", socket.id);
+        });
+
+        socket.on("disconnect", () => {
+            socket.broadcast.emit("callEnded");
+        });
+
+        socket.on("callUser", ({ userToCall, signalData, from, name }) => {
+            io.to(userToCall).emit("callUser", {
+                signal: signalData,
+                from,
+                name,
+            });
+        });
+
+        socket.on("answerCall", (data) => {
+            let { signal, to, answerName } = data;
+            console.log("caller name: ", to);
+            console.log("answer name:", answerName);
+            io.to(data.to).emit("callAccepted", data);
+        });
+
+        socket.on("leave-call", (data) => {
+            io.to(data.to).emit("stop-call");
         });
     });
 };
